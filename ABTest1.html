@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AB Testing Example</title>
+</head>
+<body>
+    <h1>AB Testing Example</h1>
+
+    <script>
+        function abTesting(urlA, percentageA, urlB) {
+  const random = Math.random(); // Generate a random number between 0 and 1
+  const selectedUrl = random < (percentageA / 100) ? urlA : urlB; // percentageA% chance for URL A
+
+  fetch(selectedUrl, {method: 'HEAD'})
+    .then(response => {
+      if (response.ok) { // 200 status code
+        window.location.href = selectedUrl; // redirect to the selected URL
+      } else {
+        window.location.href = (selectedUrl === urlA) ? urlB : urlA; // redirect to the other URL
+      }
+    })
+    .catch(() => {
+      window.location.href = (selectedUrl === urlA) ? urlB : urlA; // if fetch fails, redirect to the other URL
+    });
+}
+
+          // Example usage:
+        const urlA = 'https://uol.com.br?step=1';
+        const urlB = 'https://uol.com.br?step=2';
+        const percentageA = 99;
+        abTesting(urlA, percentageA, urlB);
+    </script>
+</body>
+</html>

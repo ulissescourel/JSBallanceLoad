@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AB Testing Example</title>
+</head>
+<body>
+    <h1>AB Testing Example</h1>
+
+    <script>        
+function abTesting(urlA, percentageA, urlB) {
+  const random = Math.random(); // Generate a random number between 0 and 1
+  const selectedUrl = random < (percentageA / 100) ? urlA : urlB; // percentageA% chance for URL A
+
+  // Create a log object to store the results
+  const log = {
+    urlA: {
+      success: 0,
+      failures: 0
+    },
+    urlB: {
+      success: 0,
+      failures: 0
+    }
+  };
+
+  // Write to the log file (in your text editor, you can open this file to see the logs)
+  function writeToLogFile(data) {
+    const logFile = 'log.txt'; // log file name
+    const date = new Date();
+    const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+
+    const logText = `${timestamp} | ${data.url} | ${data.success ? 'OK' : 'ERROR'} | ${data.success ? log[data.url].success++ : log[data.url].failures++}\n`;
+
+    // write to the log file
+    fs.appendFile(logFile, logText, (err) => {
+      if (err) throw err;
+    });
+  }
+
+  // Check if the selected URL returns a 200 status code
+  fetch(selectedUrl, {method: 'HEAD'})
+    .then(response => {
+      if (response.ok) { // 200 status code
+        writeToLogFile({url: selectedUrl, success: true});
+        window.location.href = selectedUrl; // redirect to the selected URL
+      } else {
+        writeToLogFile({url: selectedUrl, success: false});
+        window.location.href = (selectedUrl === urlA) ? urlB : urlA; // redirect to the other URL
+      }
+    })
+    .catch(() => {
+      writeToLogFile({url: selectedUrl, success: false});
+      window.location.href = (selectedUrl === urlA) ? urlB : urlA; // if fetch fails, redirect to the other URL
+    });
+}
+
+
+        // Example usage:
+        abTesting('https://uol.com.br?step=1', 
+        1, 
+        'https://uol.com.br?step=2');
+    </script>
+</body>
+</html>
